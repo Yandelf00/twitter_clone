@@ -1,10 +1,13 @@
 "use client"
+import { signIn } from 'next-auth/react'
+import toast from 'react-hot-toast'
 import React, { useCallback } from 'react'
 import useLoginModal from '@/hooks/useLoginModel'
 import { useState } from 'react'
 import Input from '../Input'
 import Modal from '../Modal'
 import useRegisterModal from '@/hooks/useRegisterModal'
+import axios from 'axios'
 
 export default function RegisterModal() {
     const loginModal = useLoginModal()  
@@ -19,13 +22,25 @@ export default function RegisterModal() {
     const onSubmit = useCallback(async()=>{
         try{
             setIsLoading(true)
+            await axios.post('api/register', {
+              email,
+              password,
+              username,
+              name
+            })
             registerModal.onClose()
+            toast.success('Account created.')
+            signIn('credentials',{
+              email,
+              password
+            })
         }catch(error){
             console.log(error)
+            toast.error('Something went wrong.')
         }finally{
             setIsLoading(false)
         }
-    },[registerModal])
+    },[registerModal, email, password, username, name])
     const onToggle = useCallback(()=>{
         if (isLoading) {
             return;
